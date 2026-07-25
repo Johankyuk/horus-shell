@@ -35,6 +35,7 @@ ShellRoot {
   FileView {
     id: maxFile
     path: root.ledPath + "/max_brightness"
+    blockLoadingUntilLoaded: true
     onLoaded: {
       var n = parseInt(text().trim());
       if (!isNaN(n) && n > 0)
@@ -45,11 +46,13 @@ ShellRoot {
   FileView {
     id: curFile
     path: root.ledPath + "/brightness"
+    printErrors: false
   }
 
   FileView {
     id: colorFile
     path: root.home + "/.config/horus/kbd-color"
+    printErrors: false
     onLoaded: root.refreshColor()
   }
 
