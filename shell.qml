@@ -90,7 +90,7 @@ ShellRoot {
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
       anchors.bottom: true
-      margins.bottom: 140
+      margins.bottom: 9  // = Style.marginM de Noctalia (9 * uiScaleRatio)
       implicitWidth: 340
       implicitHeight: 52
 
