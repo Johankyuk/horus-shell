@@ -98,6 +98,37 @@ ShellRoot {
     }
   }
 
+  // ── Fuente 1b: brillo de pantalla ────────────────────────────
+  // Mismo patron que el teclado: sysfs no emite inotify, se sondea. Solo se
+  // LEE (escribir pide permisos); quien sube y baja sigue siendo Noctalia.
+  property int bklMax: 1
+  property int bklValue: -1
+
+  FileView {
+    id: bklMaxFile
+    path: "/sys/class/backlight/nvidia_wmi_ec_backlight/max_brightness"
+    onLoaded: {
+      var n = parseInt(text().trim());
+      if (!isNaN(n) && n > 0) root.bklMax = n;
+    }
+  }
+  FileView { id: bklFile; path: "/sys/class/backlight/nvidia_wmi_ec_backlight/brightness" }
+
+  Timer {
+    interval: 120
+    running: true
+    repeat: true
+    onTriggered: {
+      var n = parseInt(bklFile.text().trim());
+      if (!isNaN(n) && n !== root.bklValue) {
+        root.bklValue = n;
+        var f = n / root.bklMax;
+        root.show("\uf185", Math.round(f * 100) + "%", f, true);
+      }
+      bklFile.reload();
+    }
+  }
+
   // ── Fuente 2: volumen ────────────────────────────────────────
   readonly property var sink: Pipewire.ready ? Pipewire.defaultAudioSink : null
   readonly property var sinkAudio: sink ? sink.audio : null
@@ -119,6 +150,28 @@ ShellRoot {
     target: root.sinkAudio
     function onVolumeChanged() { root.onVolume(); }
     function onMutedChanged() { root.onVolume(); }
+  }
+
+  // ── Fuente 2b: volumen del microfono ─────────────────────────
+  readonly property var source: Pipewire.ready ? Pipewire.defaultAudioSource : null
+  readonly property var sourceAudio: source ? source.audio : null
+
+  PwObjectTracker { objects: root.source ? [root.source] : [] }
+
+  function onMic() {
+    if (!sourceAudio) return;
+    if (sourceAudio.muted) {
+      root.show("\uf131", "Silencio", 0, true);
+      return;
+    }
+    var v = Math.max(0, Math.min(1, sourceAudio.volume));
+    root.show("\uf130", Math.round(v * 100) + "%", v, true);
+  }
+
+  Connections {
+    target: root.sourceAudio
+    function onVolumeChanged() { root.onMic(); }
+    function onMutedChanged() { root.onMic(); }
   }
 
   // ── Fuente 3: perfil de energia — PARKED ─────────────────────
