@@ -90,9 +90,9 @@ ShellRoot {
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
       anchors.bottom: true
-      margins.bottom: 9  // = Style.marginM de Noctalia (9 * uiScaleRatio)
-      implicitWidth: 340
-      implicitHeight: 52
+      margins.bottom: 31  // hueco visible medido contra el OSD de Noctalia
+      implicitWidth: 292
+      implicitHeight: 44
 
       Rectangle {
         anchors.fill: parent
@@ -111,7 +111,7 @@ ShellRoot {
           width: 20
           height: 20
           anchors.left: parent.left
-          anchors.leftMargin: 18
+          anchors.leftMargin: 16
           anchors.verticalCenter: parent.verticalCenter
 
           Rectangle {
@@ -146,14 +146,14 @@ ShellRoot {
         Text {
           id: pct
           anchors.right: parent.right
-          anchors.rightMargin: 18
+          anchors.rightMargin: 16
           anchors.verticalCenter: parent.verticalCenter
           width: 40
           horizontalAlignment: Text.AlignRight
           text: Math.round(root.value / root.maxValue * 100) + "%"
           color: "#b88cf2"
           font.family: "MesloLGS Nerd Font Mono"
-          font.pixelSize: 13
+          font.pixelSize: 12
         }
 
         Rectangle {
@@ -162,8 +162,8 @@ ShellRoot {
           anchors.right: pct.left
           anchors.rightMargin: 14
           anchors.verticalCenter: parent.verticalCenter
-          height: 6
-          radius: 3
+          height: 5
+          radius: 2.5
           color: Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.22)
 
           Rectangle {
