@@ -174,6 +174,43 @@ ShellRoot {
     function onMutedChanged() { root.onMic(); }
   }
 
+  // ── Fuente 2c: teclas de bloqueo ─────────────────────────────
+  // sysfs refleja el estado real de los LEDs pero no emite inotify: se sondea.
+  // input0 es el teclado interno (input23 es el mismo estado por otra ruta y su
+  // numero cambia entre arranques). El centinela -1 evita disparar la capsula
+  // en la primera lectura: niri activa numlock al inicio y saldria sola.
+  property int capsValue: -1
+  property int numValue: -1
+
+  FileView { id: capsFile; path: "/sys/class/leds/input0::capslock/brightness"; printErrors: false }
+  FileView { id: numFile;  path: "/sys/class/leds/input0::numlock/brightness";  printErrors: false }
+
+  Timer {
+    interval: 200
+    running: true
+    repeat: true
+    onTriggered: {
+      capsFile.reload();
+      numFile.reload();
+
+      var c = parseInt(capsFile.text().trim());
+      if (!isNaN(c) && c !== root.capsValue) {
+        var previo = root.capsValue;
+        root.capsValue = c;
+        if (previo !== -1)
+          root.show("", c ? "Mayúsculas activadas" : "Mayúsculas desactivadas", 0, false);
+      }
+
+      var n = parseInt(numFile.text().trim());
+      if (!isNaN(n) && n !== root.numValue) {
+        var previoN = root.numValue;
+        root.numValue = n;
+        if (previoN !== -1)
+          root.show("\uf1ec", n ? "Bloq Num activado" : "Bloq Num desactivado", 0, false);
+      }
+    }
+  }
+
   // ── Fuente 3: perfil de energia — PARKED ─────────────────────
   // Noctalia lo anuncia con ToastService.showNotice sin gate de settings:
   // no es apagable por config. Duplicarlo es peor que dejar el suyo, asi que
@@ -212,10 +249,13 @@ ShellRoot {
 
         Text {
           id: icon
+          // Sin glifo el elemento no debe ocupar sitio: si no, la etiqueta
+          // centrada queda descolocada por el hueco.
+          visible: root.icon !== ""
           anchors.left: parent.left
           anchors.leftMargin: 16
           anchors.verticalCenter: parent.verticalCenter
-          width: 20
+          width: root.icon !== "" ? 20 : 0
           horizontalAlignment: Text.AlignHCenter
           text: root.icon
           color: root.cPrimary
@@ -260,8 +300,10 @@ ShellRoot {
         // Modo sin barra (perfil de energia): etiqueta centrada.
         Text {
           visible: !root.showBar
-          anchors.left: icon.right
-          anchors.leftMargin: 14
+          // Con glifo, la etiqueta ocupa lo que queda a su derecha; sin glifo se
+          // centra en la capsula entera (anclar a icon.right dejaria 14px de sesgo).
+          anchors.left: root.icon !== "" ? icon.right : parent.left
+          anchors.leftMargin: root.icon !== "" ? 14 : 16
           anchors.right: parent.right
           anchors.rightMargin: 16
           anchors.verticalCenter: parent.verticalCenter
