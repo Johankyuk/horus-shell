@@ -51,7 +51,7 @@ Row {
             Text {
                 anchors.centerIn: parent
                 text: parent.modelData.glifo
-                color: zona.containsMouse ? root.pal.mSurface : root.pal.mOnSurfaceVariant
+                color: zona.containsMouse ? root.pal.mOnPrimary : root.pal.mOnSurface
                 font.family: "MesloLGS Nerd Font Mono"
                 font.pixelSize: 17
             }

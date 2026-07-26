@@ -110,7 +110,7 @@ Item {
                         text: parent.modelData.accion === "toggle"
                             ? (root.player && root.player.isPlaying ? "\uf04c" : "\uf04b")
                             : parent.modelData.glifo
-                        color: zonaM.containsMouse ? root.pal.mSurface : root.pal.mOnSurfaceVariant
+                        color: zonaM.containsMouse ? root.pal.mOnPrimary : root.pal.mOnSurface
                         font.family: "MesloLGS Nerd Font Mono"
                         font.pixelSize: 13
                     }

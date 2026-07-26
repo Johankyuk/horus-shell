@@ -2,12 +2,13 @@ import QtQuick
 import Quickshell
 import "Modules/Lock"
 
-// Banco de pruebas de la superficie. Bloquea 3s después de arrancar, con el
-// botón de emergencia activo.
+// Banco de pruebas: bloquea 3s tras arrancar, con salida de emergencia y los
+// botones de sesión en seco.
 ShellRoot {
     Lock {
         id: lock
         escapeHatch: true
+        dryRun: true
         Component.onCompleted: armar.start()
         Timer {
             id: armar

@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 import "../../Commons"
 
@@ -10,10 +11,19 @@ Loader {
     id: root
     active: false
 
-    // Botón de emergencia visible. Solo para pruebas: en producción va en false.
+    // Botón de emergencia visible. Solo para pruebas.
     property bool escapeHatch: false
+    // Botones de sesión en seco (no apagan nada). Independiente del anterior:
+    // atarlos haría que cablear el lock armara los botones de apagado de golpe.
+    property bool dryRun: false
 
     function lock() { root.active = true }
+
+    IpcHandler {
+        target: "lock"
+        function lock(): void { root.active = true }
+        function isLocked(): bool { return root.active }
+    }
 
     Timer {
         id: unloadTimer
@@ -44,6 +54,12 @@ Loader {
                 WlSessionLockSurface {
                     id: surface
                     color: pal.mSurface
+
+                    LockBackground {
+                        anchors.fill: parent
+                        pal: pal
+                        screenName: surface.screen ? surface.screen.name : ""
+                    }
 
                     // Cada superficie necesita su propio input con foco: en
                     // multi-monitor el teclado va a la que tenga el cursor.
@@ -127,7 +143,7 @@ Loader {
                                 anchors.centerIn: parent
                                 visible: ctx.currentText.length === 0
                                 text: "contraseña"
-                                color: pal.mOutline
+                                color: pal.mOnSurfaceVariant
                                 font.family: "MesloLGS Nerd Font Mono"
                                 font.pixelSize: 13
                             }
@@ -152,7 +168,7 @@ Loader {
                         LockSession {
                             anchors.horizontalCenter: parent.horizontalCenter
                             pal: pal
-                            dryRun: root.escapeHatch
+                            dryRun: root.dryRun
                         }
 
                         Rectangle {
